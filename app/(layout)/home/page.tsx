@@ -12,7 +12,7 @@ var msgDiego = ['oie', 'tudo bem', 'já fez o trabalho do chat?', 'acho bom!'];
 
 export default function Home() {
   const [clicou, setClicou] = useState(false);
-  const [msgUser, setMsgUser] = useState(['Oi, tudo bem?', 'já sim, sor']);
+  const [msgUser, setMsgUser] = useState(['Oie, tudo bem?', 'já sim, sor']);
   const [newMsg, setNewMsg] = useState('');
   return (
     <div className="md:flex h-screen">
