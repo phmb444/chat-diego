@@ -7,7 +7,7 @@ import Conversa from "@/components/conversa";
 
 import { ScrollShadow } from "@nextui-org/scroll-shadow";
 
-export var msgDiego = ['oie', 'tudo bem', 'já fez o trabalho do chat?', 'acho bom!'];
+var msgDiego = ['oie', 'tudo bem', 'já fez o trabalho do chat?', 'acho bom!'];
 
 
 export default function Home() {

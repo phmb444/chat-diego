@@ -1,8 +1,7 @@
 'use client';
 
 import { ScrollShadow } from "@nextui-org/scroll-shadow";
-
-import { msgDiego } from "@/app/(layout)/home/page";
+var msgDiego = ['oie', 'tudo bem', 'já fez o trabalho do chat?', 'acho bom!'];
 
 
 export default function Conversa(msgUser:any) {
