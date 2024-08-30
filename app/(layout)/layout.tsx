@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     default: siteConfig.name,
     template: `%s - ${siteConfig.name}`,
   },
-  description: siteConfig.description,
+  description: "chat do diego",
   icons: {
     icon: "/favicon.ico",
   },
