@@ -1,45 +1,41 @@
 'use client';
+import { useEffect, useState } from 'react';
+import { ScrollShadow } from '@nextui-org/scroll-shadow';
 
-import { ScrollShadow } from "@nextui-org/scroll-shadow";
-var msgDiego = ['oie', 'tudo bem', 'já fez o trabalho do chat?', 'acho bom!'];
+export default function Conversa({ mensagens, usuarios }: { mensagens: { usuario: string, mensagem: string, data: string }[], usuarios: string[] }) {
+    const [currentUser, setCurrentUser] = useState<string | null>(null);
 
+    useEffect(() => {
+        const user = localStorage.getItem('usuario');
+        setCurrentUser(user);
+    }, []);
 
-export default function Conversa(msgUser:any) {
-    console.log(msgUser)
-    
     return (
         <ScrollShadow hideScrollBar className="text-black h-4/5">
-            <div className="bg-violet-200 rounded-md h-10 content-center ml-4 w-fit">
-                <p className="ml-4 mr-4">{msgDiego[0]}</p>
-            </div>
-            <div className="flex justify-end">
-                <div className="bg-violet-400 rounded-md h-10 content-center mr-4 mt-4 w-fit justify-end ">
-                    <p className="ml-4 mr-4">{msgUser.msgUser[0]}</p>
+            {mensagens.map((msg, index) => (
+                <div key={index} className={`flex ${msg.usuario === currentUser ? 'justify-end' : ''}`}>
+                    <div className={`rounded-lg shadow-md max-w-[70%] mt-4 p-4 
+                        ${msg.usuario === currentUser 
+                            ? 'bg-violet-500 text-white mr-4' 
+                            : 'bg-gray-100 ml-4'}`}>
+                        <div className="flex flex-col gap-1">
+                            <span className={`text-sm font-semibold 
+                                ${msg.usuario === currentUser 
+                                    ? 'text-violet-100' 
+                                    : 'text-violet-600'}`}>
+                                {msg.usuario}
+                            </span>
+                            <p className="text-base break-words">{msg.mensagem}</p>
+                            <span className={`text-xs mt-2 
+                                ${msg.usuario === currentUser 
+                                    ? 'text-violet-200' 
+                                    : 'text-gray-500'}`}>
+                                {new Date(msg.data).toLocaleDateString('pt-BR')}
+                            </span>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div className="bg-violet-200 rounded-md h-10 content-center ml-4 w-fit">
-                <p className="ml-4 mr-4">{msgDiego[1]}</p>
-            </div>
-            <div className="bg-violet-200 rounded-md h-10 content-center ml-4 w-fit mt-4">
-                <p className="ml-4 mr-4">{msgDiego[2]}</p>
-            </div>
-            <div className="flex justify-end">
-                <div className="bg-violet-400 rounded-md h-10 content-center mr-4 mt-4 w-fit justify-end ">
-                    <p className="ml-4 mr-4">{msgUser.msgUser[1]}</p>
-                </div>
-            </div>
-            <div className="bg-violet-200 rounded-md h-fit content-center ml-4 w-fit mt-4 p-4">
-                <img src="diegoCandido.jpg" className="w-64" alt="" />
-            </div>
-            {msgUser.msgUser[2] != null && (
-                <div className="flex justify-end">
-                <div className="bg-violet-400 rounded-md h-10 content-center mr-4 mt-4 w-fit justify-end ">
-                    <p className="ml-4 mr-4">{msgUser.msgUser[2]}</p>
-                </div>
-            </div>
-            )
-            }
-    
+            ))}
         </ScrollShadow>
-    )
+    );
 }

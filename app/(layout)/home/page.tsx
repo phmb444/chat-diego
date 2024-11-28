@@ -1,66 +1,125 @@
 "use client";
 
-import { Input } from "@nextui-org/input";
-import { Button } from "@nextui-org/button";
-import { useState } from "react";
+import React, { useState, useEffect } from 'react';
 import Conversa from "@/components/conversa";
-
-import { ScrollShadow } from "@nextui-org/scroll-shadow";
-
-var msgDiego = ['oie', 'tudo bem', 'já fez o trabalho do chat?', 'acho bom!'];
-
 
 export default function Home() {
   const [clicou, setClicou] = useState(false);
-  const [msgUser, setMsgUser] = useState(['Oie, tudo bem?', 'já sim, sor']);
-  const [newMsg, setNewMsg] = useState('');
+  const [messages, setMessages] = useState<{ mensagens: { usuario: string, mensagem: string, data: string }[], usuarios: string[] }>({ mensagens: [], usuarios: [] });
+
+  interface Sala {
+    _id: string;
+    nome: string;
+    mensagens: { mensagem: string }[];
+  }
+
+  const [salas, setSalas] = useState<Sala[]>([]);
+  const [salaAtualId, setSalaAtualId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      fetch('https://chat-api-pi-hazel.vercel.app/salas', {
+        headers: {
+          'Authorization': token
+        }
+      })
+        .then(response => response.json())
+        .then(data => {
+          console.log(data);
+          setSalas(data);
+        })
+        .catch(error => console.error('Error fetching chat rooms:', error));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (salaAtualId) {
+      const token = localStorage.getItem('token');
+      const fetchMessages = () => {
+        if (token) {
+          fetch(`https://chat-api-pi-hazel.vercel.app/mensagens/${salaAtualId}`, {
+            headers: {
+              'Authorization': token
+            }
+          })
+            .then(response => response.json())
+            .then(data => {
+              console.log(data);
+              setMessages(data);
+            })
+            .catch(error => console.error('Error fetching messages:', error));
+        }
+      };
+
+      fetchMessages();
+      const intervalId = setInterval(fetchMessages, 10000);
+
+      return () => clearInterval(intervalId);
+    }
+  }, [salaAtualId]);
+
+  const handleSalaClick = (salaId: string) => {
+    setClicou(true);
+    setSalaAtualId(salaId);
+  };
+
   return (
-    <div className="md:flex h-screen">
-      <section className="border-2 border-purple-700 rounded-lg md:w-96 md:pb-80 mr-12 mb-12 p-4 h-fit w-full md:h-3/4">
-        <p className="p-4 font-bold text-xl">Salas</p>
-        <div className="p-4 flex rounded-lg hover:cursor-pointer hover:bg-gray-600" onClick={() => setClicou(true)}>
-          <img
-            src="diegoCandido.jpg"
-            className="w-1/4 rounded-lg mr-6"
-            alt=""
-          />
-          <div >
-            <p className="font-bold">Diego Candido</p>
-            <p>{msgDiego[2]}</p>
-          </div>
+    <div className="md:flex h-screen max-h-[88vh] gap-4">
+      <section className="border-2 border-purple-700 rounded-lg md:w-96 mr-4 mb-4 bg-gray-800 shadow-lg transform transition-all hover:border-purple-500">
+        <h2 className="p-4 font-bold text-2xl text-purple-400 border-b border-purple-700">Salas</h2>
+        <div className="overflow-y-auto max-h-[calc(100vh-8rem)]">
+          {salas.map((sala) => (
+            <div
+              key={sala._id}
+              className={`p-4 flex rounded-lg hover:cursor-pointer transition-colors duration-200 
+                ${salaAtualId === sala._id ? 'bg-purple-900/50' : 'hover:bg-gray-700'}`}
+              onClick={() => handleSalaClick(sala._id)}
+            >
+              <div className="w-full">
+                <p className="font-bold text-purple-300 mb-1">{sala.nome}</p>
+                <p className="text-gray-400 text-sm truncate">
+                  {sala.mensagens.length > 0 ? sala.mensagens[sala.mensagens.length - 1].mensagem : 'Sem mensagens'}
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
-      <main className="border-2 border-violet-700 rounded-lg md:w-3/4 h-3/4 flex flex-col">
-        {clicou && <div className="p-4 flex justify-between h-fit-content">
-          <div className="flex">
-            <img
-              src="diegoCandido.jpg"
-              className="h-12 rounded-lg mr-6 "
-              alt=""
-            />
+
+      <main className="border-2 border-violet-700 rounded-lg md:w-3/4 bg-gray-800 shadow-lg flex flex-col">
+        {clicou && (
+          <div className="p-4 flex justify-between border-b border-violet-700 bg-gray-800">
             <div>
-              <p className="font-bold">Diego Candido</p>
-              <p>Online</p>
+              <p className="font-bold text-violet-300">Usuários</p>
+              <div className="flex flex-wrap gap-2">
+                {messages.usuarios.length > 0 ? (
+                  messages.usuarios.map((usuario, index) => (
+                    <p key={index} className="text-purple-300 text-sm">{usuario}</p>
+                  ))
+                ) : (
+                  <p className="text-gray-400 text-sm">Nenhum usuário online</p>
+                )}
+              </div>
             </div>
+            <button
+              className="p-2 rounded-lg hover:bg-red-500/20 transition-colors duration-200"
+              onClick={() => setClicou(false)}
+            >
+              <img src="x.svg" className="w-6 h-6 opacity-70 hover:opacity-100" alt="Fechar" />
+            </button>
           </div>
-          <div className="justify-items-end h-8 rounded-lg hover:cursor-pointer hover:bg-red-500" onClick={() => setClicou(false)}>
-            <img src="x.svg" className="w-8 h-8 p-1" alt="" />
-          </div>
-        </div>}
+        )}
 
         {clicou ? (
-          <Conversa msgUser = {msgUser}></Conversa>
+          <Conversa mensagens={messages.mensagens} usuarios={messages.usuarios} />
         ) : (
-          <p className="text-center flex items-center justify-center mt-8 h-4/5">Sem conversa selecionada</p>
-        )}
-        <div className="flex mt-6 h-1/5 justify-center">
-          <div className="flex w-full mt-8 flex-wrap md:flex-nowrap gap-4 ml-4">
-            <Input isDisabled={!clicou} value={newMsg} onValueChange={setNewMsg} type="Text" label="Envie uma mensagem..." />
+          <div className="flex items-center justify-center h-full">
+            <p className="text-gray-400 text-lg">
+              Selecione uma sala para iniciar a conversa
+            </p>
           </div>
-          <Button isDisabled={!clicou} onPress={() => setMsgUser(prevMsgUser => [...prevMsgUser, newMsg])} radius="full" className="mt-8 w-16 h-14 ml-4  mr-4 bg-violet-500" variant="shadow" isIconOnly color="secondary">
-            <img src="paper-plane-right.svg" className="w-1/2" alt="" />
-          </Button>
-        </div>
+        )}
       </main>
     </div>
   );
