@@ -1,17 +1,30 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ScrollShadow } from '@nextui-org/scroll-shadow';
 
-export default function Conversa({ mensagens, usuarios }: { mensagens: { usuario: string, mensagem: string, data: string }[], usuarios: string[] }) {
+export default function Conversa({ mensagens, usuarios, scrollTrigger }: { mensagens: { usuario: string, mensagem: string, data: string }[], usuarios: string[], scrollTrigger: any }) {
     const [currentUser, setCurrentUser] = useState<string | null>(null);
+    const messagesEndRef = useRef<HTMLDivElement>(null);
+    const messageListRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         const user = localStorage.getItem('usuario');
         setCurrentUser(user);
     }, []);
 
+    useEffect(() => {
+        if (messagesEndRef.current && messageListRef.current) {
+            messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
+            // Alternativamente, para scroll suave:
+            // messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, [scrollTrigger]);
+
     return (
-        <ScrollShadow hideScrollBar className="text-black h-4/5">
+        <div
+            className="message-list overflow-y-auto h-full" // Ajuste a altura conforme necessário
+            ref={messageListRef}
+        >
             {mensagens.map((msg, index) => (
                 <div key={index} className={`flex ${msg.usuario === currentUser ? 'justify-end' : ''}`}>
                     <div className={`rounded-lg shadow-md max-w-[70%] mt-4 p-4 
@@ -25,7 +38,7 @@ export default function Conversa({ mensagens, usuarios }: { mensagens: { usuario
                                     : 'text-violet-600'}`}>
                                 {msg.usuario}
                             </span>
-                            <p className="text-base break-words">{msg.mensagem}</p>
+                            <p className="text-base text-black break-words">{msg.mensagem}</p>
                             <span className={`text-xs mt-2 
                                 ${msg.usuario === currentUser 
                                     ? 'text-violet-200' 
@@ -36,6 +49,7 @@ export default function Conversa({ mensagens, usuarios }: { mensagens: { usuario
                     </div>
                 </div>
             ))}
-        </ScrollShadow>
+            <div ref={messagesEndRef} />
+        </div>
     );
 }

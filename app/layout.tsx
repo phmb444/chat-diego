@@ -34,7 +34,7 @@ export default function RootLayout({
   return (
     <html suppressHydrationWarning lang="en">
       <head />
-      <body>
+      <body className="md:max-h-screen md:overflow-y-hidden">
         <Providers>
           <div
             className="relative flex flex-col h-screen"

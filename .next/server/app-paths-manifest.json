@@ -1,3 +1,4 @@
 {
-  "/(layout)/home/page": "app/(layout)/home/page.js"
+  "/(layout)/home/page": "app/(layout)/home/page.js",
+  "/page": "app/page.js"
 }

@@ -1,5 +1,4 @@
 
-
 import "@/styles/globals.css";
 import { Metadata, Viewport } from "next";
 import { Link } from "@nextui-org/link";
@@ -38,7 +37,7 @@ export default function RootLayout({
       <head />
       <body
         className={clsx(
-          "min-h-screen bg-background font-sans antialiased",
+          "min-h-screen bg-background md:max-h-screen md:overflow-y-hidden font-sans antialiased",
           fontSans.variable,
         )}
       >
